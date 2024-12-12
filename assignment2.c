@@ -113,7 +113,7 @@ void updateUser()
         fwrite(&user, sizeof(User), 1, temp);
     }
 
-    fclose(file);
+    fclose(file );
     fclose(temp);
 
     remove("users.txt");
