@@ -104,7 +104,7 @@ void updateUser()
     {
         if (user.id == id)
         {
-            found = 1;
+            found = 1 ;
             printf("Enter new Name: ");
             scanf("%s", user.name);
             printf("Enter new Age: ");
