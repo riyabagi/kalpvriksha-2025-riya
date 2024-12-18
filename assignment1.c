@@ -1,11 +1,13 @@
-// input format 3+5
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 
 #define MAX_EXPR_LEN 100
+
+#define ADD_OP '+'
+#define SUB_OP '-'
+#define MUL_OP '*'
+#define DIV_OP '/'
 
 typedef enum {
     NO_ERROR,
@@ -13,89 +15,98 @@ typedef enum {
     INVALID_EXPRESSION
 } ErrorType;
 
-ErrorType error = NO_ERROR;
+typedef struct {
+    int value;
+    ErrorType error;
+} Result;
 
-char* skip_whitespace(char *expr) {
-    while (*expr == ' ') expr++;
-    return expr;
+int is_digit(char ch) {
+    return (ch >= '0' && ch <= '9');
 }
 
-int evaluate_term(char **expr);
-
-int evaluate_expression(char **expr);
-
 int parse_integer(char **expr) {
-    *expr = skip_whitespace(*expr);
     int result = 0;
-    while (isdigit(**expr)) {
+    while (is_digit(**expr)) {
         result = result * 10 + (**expr - '0');
         (*expr)++;
     }
     return result;
 }
 
-int evaluate_factor(char **expr) {
-    *expr = skip_whitespace(*expr);
-    if (isdigit(**expr)) {
-        return parse_integer(expr);
+Result checkFactorValidity(char **expr) {
+    Result res = {0, NO_ERROR};
+
+    if (is_digit(**expr)) {
+        res.value = parse_integer(expr);
     } else {
-        error = INVALID_EXPRESSION;
-        return 0;
+        res.error = INVALID_EXPRESSION; 
     }
+    return res;
 }
 
-int evaluate_term(char **expr) {
-    int value = evaluate_factor(expr);
+Result calculateMulDiv(char **expr) {
+    Result res = checkFactorValidity(expr);
+    if (res.error != NO_ERROR) return res; 
 
-    while (**expr == '*' || **expr == '/') {
+    while (**expr == MUL_OP || **expr == DIV_OP) {
         char op = **expr;
         (*expr)++;
-        int next_value = evaluate_factor(expr);
+        Result nextRes = checkFactorValidity(expr);
+        if (nextRes.error != NO_ERROR) return nextRes; 
 
-        if (op == '*') {
-            value *= next_value;
-        } else if (op == '/') {
-            if (next_value == 0) {
-                error = DIVISION_BY_ZERO;
-                return 0;
+        if (op == MUL_OP) {
+            res.value *= nextRes.value;
+        } else if (op == DIV_OP) {
+            if (nextRes.value == 0) {
+                res.error = DIVISION_BY_ZERO; 
+                return res;
             }
-            value /= next_value;
+            res.value /= nextRes.value;
         }
     }
-
-    return value;
+    return res;
 }
 
-int evaluate_expression(char **expr) {
-    int value = evaluate_term(expr);
+Result calculateSum(char **expr) {
+    Result res = calculateMulDiv(expr); 
+    if (res.error != NO_ERROR) return res; 
 
-    while (**expr == '+' || **expr == '-') {
+    while (**expr == ADD_OP || **expr == SUB_OP) {
         char op = **expr;
         (*expr)++;
-        int next_value = evaluate_term(expr);
+        Result nextRes = calculateMulDiv(expr); 
+        if (nextRes.error != NO_ERROR) return nextRes;
 
-        if (op == '+') {
-            value += next_value;
-        } else if (op == '-') {
-            value -= next_value;
+        if (op == ADD_OP) {
+            res.value += nextRes.value;
+        } else if (op == SUB_OP) {
+            res.value -= nextRes.value;
         }
     }
-
-    return value;
+    return res;
 }
 
-int evaluate(const char *expression) {
+Result calculateSumFromString(const char *expression) {
     char expr[MAX_EXPR_LEN];
     strncpy(expr, expression, MAX_EXPR_LEN - 1);
     expr[MAX_EXPR_LEN - 1] = '\0';
 
     char *p = expr;
-    int result = evaluate_expression(&p);
-    
-    if (*skip_whitespace(p) != '\0') {
-        error = INVALID_EXPRESSION;
+    while (*p != '\0') {
+        if (*p == ' ' || *p == '\t' || *p == '\n') {
+            memmove(p, p + 1, strlen(p));
+        } else {
+            p++;
+        }
     }
-    return result;
+
+    p = expr; 
+    Result res = calculateSum(&p); 
+
+    if (*p != '\0') {
+        res.error = INVALID_EXPRESSION;
+    }
+    return res;
 }
 
 int main() {
@@ -109,14 +120,14 @@ int main() {
 
     input[strcspn(input, "\n")] = 0;
 
-    int result = evaluate(input);
+    Result res = calculateSumFromString(input);
 
-    if (error == DIVISION_BY_ZERO) {
+    if (res.error == DIVISION_BY_ZERO) {
         printf("Error: Division by zero.\n");
-    } else if (error == INVALID_EXPRESSION) {
+    } else if (res.error == INVALID_EXPRESSION) {
         printf("Error: Invalid expression.\n");
     } else {
-        printf("Result: %d\n", result);
+        printf("Result: %d\n", res.value);
     }
 
     return 0;
