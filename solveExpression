@@ -1,0 +1,33 @@
+#include <stdio.h>
+
+long long modExponentiation(long long base, long long exponent, long long mod)
+{
+    long long result = 1;
+
+    for (long long i = 0; i < exponent; i++)
+    {
+        result *= base;
+    }
+
+    return result % mod;
+}
+
+int main()
+{
+    long long base;
+    long long exponent;
+    long long mod;
+
+    printf("Enter the base: ");
+    scanf("%lld", &base);  
+    printf("Enter the exponent: ");
+    scanf("%lld", &exponent); 
+    printf("Enter the modulus: ");
+    scanf("%lld", &mod);  
+
+    long long finalResult = modExponentiation(base, exponent, mod);
+
+    printf("%lld^%lld %% %lld = %lld\n", base, exponent, mod, finalResult); 
+
+    return 0;
+}
