@@ -14,44 +14,102 @@ char customised_toLower(char character)
     return character; 
 }
 
-int startsWithVowel(char name[]) 
+int startsWithVowel(char *name) 
 {
-    char firstChar = customised_toLower(name[0]); 
+    char firstChar = customised_toLower(*name); 
     return (firstChar == 'a' || firstChar == 'e' || firstChar == 'i' || firstChar == 'o' || firstChar == 'u');
 }
 
 int customised_strlen(const char *str) 
 {
     int length = 0;
-    
-    while (str[length] != '\0') 
+    while (*(str + length) != '\0') 
     {
         length++; 
     }
-    
     return length;  
 }
 
-void customised_strcpy(char dest[], const char src[]) 
+void customised_strcpy(char *dest, const char *src) 
 {
-    int index = 0;
-    
-    while (src[index] != '\0') 
+    while (*src != '\0') 
     {
-        dest[index] = src[index];  
-        index++;
+        *dest = *src;
+        dest++;
+        src++;
     }
-    
-    dest[index] = '\0';
+    *dest = '\0';
+}
+
+void inputNames(char (*names)[MAX_COLS][MAX_NAME_LENGTH], int rows, int cols) 
+{
+    printf("Enter the names:\n");
+    for (int row = 0; row < rows; row++) 
+    {
+        for (int col = 0; col < cols; col++) 
+        {
+            printf("Name at (%d,%d): ", row, col);
+            scanf("%s", *(*(names + row) + col));
+        }
+    }
+}
+
+void printNames(char (*names)[MAX_COLS][MAX_NAME_LENGTH], int rows, int cols) 
+{
+    printf("\nThe 2D array of names is:\n");
+    for (int row = 0; row < rows; row++) 
+    {
+        for (int col = 0; col < cols; col++) 
+        {
+            printf("%s ", *(*(names + row) + col));
+        }
+        printf("\n");
+    }
+}
+
+int findLongestNames(char (*names)[MAX_COLS][MAX_NAME_LENGTH], int rows, int cols, char (*longestNames)[MAX_NAME_LENGTH]) 
+{
+    int longestNameCount = 0;
+    int maxLength = 0;
+
+    for (int row = 0; row < rows; row++) 
+    {
+        for (int col = 0; col < cols; col++) 
+        {
+            char *currentName = *(*(names + row) + col);
+            int currentLength = customised_strlen(currentName);
+
+            if (currentLength > maxLength) 
+            {
+                maxLength = currentLength;
+                customised_strcpy(*longestNames, currentName);
+                longestNameCount = 1;
+            } 
+            else if (currentLength == maxLength) 
+            {
+                customised_strcpy(*(longestNames + longestNameCount), currentName);
+                longestNameCount++;
+            }
+        }
+    }
+    return longestNameCount;
+}
+
+void printLongestNames(char (*longestNames)[MAX_NAME_LENGTH], int longestNameCount) 
+{
+    printf("The longest names are:\n");
+    for (int i = 0; i < longestNameCount; i++) 
+    {
+        printf("%s\n", *(longestNames + i));
+    }
 }
 
 int main() 
 {
     int rows, cols;
     char names[MAX_ROWS][MAX_COLS][MAX_NAME_LENGTH]; 
-    int vowelCount = 0;
     char longestNames[MAX_ROWS * MAX_COLS][MAX_NAME_LENGTH]; 
-    int longestNameCount = 0;
+    int vowelCount = 0;
 
     printf("Enter number of rows: ");
     scanf("%d", &rows);
@@ -64,49 +122,26 @@ int main()
         return 1;
     }
 
-    printf("Enter the names:\n");
-    for (int rowIndex = 0; rowIndex < rows; rowIndex++) 
-    {
-        for (int colIndex = 0; colIndex < cols; colIndex++) 
-        {
-            printf("Name at (%d,%d): ", rowIndex, colIndex);
-            scanf("%s", names[rowIndex][colIndex]);
+    inputNames(names, rows, cols);
 
-            if (startsWithVowel(names[rowIndex][colIndex])) 
+    for (int row = 0; row < rows; row++) 
+    {
+        for (int col = 0; col < cols; col++) 
+        {
+            if (startsWithVowel(*(*(names + row) + col))) 
             {
                 vowelCount++;
             }
-
-            if (customised_strlen(names[rowIndex][colIndex]) > customised_strlen(longestNames[0])) 
-            {
-                customised_strcpy(longestNames[0], names[rowIndex][colIndex]);
-                longestNameCount = 1;
-            } 
-            else if (customised_strlen(names[rowIndex][colIndex]) == customised_strlen(longestNames[0])) 
-            {
-                customised_strcpy(longestNames[longestNameCount], names[rowIndex][colIndex]);
-                longestNameCount++;
-            }
         }
     }
 
-    printf("\nThe 2D array of names is:\n");
-    for (int rowIndex = 0; rowIndex < rows; rowIndex++) 
-    {
-        for (int colIndex = 0; colIndex < cols; colIndex++) 
-        {
-            printf("%s ", names[rowIndex][colIndex]);
-        }
-        printf("\n");
-    }
+    int longestNameCount = findLongestNames(names, rows, cols, longestNames);
+
+    printNames(names, rows, cols);
 
     printf("\nNumber of names starting with a vowel: %d\n", vowelCount);
 
-    printf("The longest names are:\n");
-    for (int index = 0; index < longestNameCount; index++) 
-    {
-        printf("%s\n", longestNames[index]);
-    }
+    printLongestNames(longestNames, longestNameCount);
 
     return 0;
 }
