@@ -1,5 +1,5 @@
 # kalpvriksha-2025-riya
-Kalpvriksha Program | Batch-2025: C Programming Assignments covering Calculator and CRUD operations.
+Kalpvriksha Program | Batch-2025: C Programming Assignments week 3.
 
 This program reads the students name and it prints the following
   1. number of names starting with vowel
