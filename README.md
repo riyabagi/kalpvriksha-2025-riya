@@ -11,6 +11,9 @@ Kalpvriksha Program | Batch-2025:
 string manipulation
   1. Remove the duplicate characters
   2. Count the number of words
+  3. find the Substring
+  4. check for valid string rotation
+  5. customized atoi function
   
 Contact
   Name: Riya Bagi
