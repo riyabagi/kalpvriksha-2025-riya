@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node
+{
+    int data;
+    struct Node *next;
+} node;
+
+node *createNewNode(int values)
+{
+    node *newNode = (node *)malloc(sizeof(node));
+    newNode->data = values;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insertNode(node *newNode, node **head)
+{
+    if (*head == NULL)
+    {
+        *head = newNode;
+        return;
+    }
+    else
+    {
+        node *current = *head;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+}
+
+void printnode(node **head)
+{
+    if (head == NULL)
+    {
+        printf("The linked list is empty");
+        return;
+    }
+    node *current = *head;
+    while (current != NULL)
+    {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+void deleteLinkedList(node **head)
+{
+    if (*head == NULL)
+    {
+        return;
+    }
+    node *current = *head;
+    node *nextNode;
+
+    while (current != NULL)
+    {
+        nextNode = current->next;
+        free(current);
+        current = nextNode;
+    }
+    *head = NULL;
+}
+
+int main()
+{
+    int values;
+    node *head = NULL;
+    printf("Enter the values\n");
+    while (scanf("%d", &values) != EOF)
+    {
+        node *newNode = createNewNode(values);
+        insertNode(newNode, &head);
+    }
+
+    printf("Origional linked list\n");
+    printnode(&head);
+
+    deleteLinkedList(&head);
+
+    printf("Linked list after deleting the value\n");
+    printnode(&head);
+
+    return 0;
+}
