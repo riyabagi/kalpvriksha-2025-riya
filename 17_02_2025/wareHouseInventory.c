@@ -34,17 +34,18 @@ void pushItem(stack *s, char item[], int quantity)
         printf("Stack is full\n");
         return;
     }
-
+    printf("%d\n",quantity);
     for (int index = 0; index <= s->top; index++)
     {
         if (strcmp(s->item[index], item) == 0)
         {
-            s->quantity[index] += quantity;
+            strcpy(s->item[s->top], item);
+            s->quantity[s->top] += quantity;
             return;
         }
     }
     s->top++;
-    strcpy(s->top[item], item);
+    strcpy(s->item[s->top], item);
     s->quantity[s->top] = quantity;
 }
 
@@ -64,11 +65,16 @@ void updateQuantity(stack *s, char item[], int quantity)
 
 void queryItem(stack *s, char item[])
 {
+    if (s->top == -1)
+    {
+        printf("Stack is empty\n");
+        return;
+    }
     for (int index = 0; index <= s->top; index++)
     {
         if (strcmp(s->item[index], item) == 0)
         {
-            printf("%d \n", s->quantity[index]);
+            printf("Item: %s, Quantity: %d\n", item, s->quantity[index]);
             return;
         }
     }
@@ -83,7 +89,7 @@ int main()
     int choice = 0, quantity;
     char item[MAX];
 
-    printf("1]Add\n2]Update\n3]Display an item\n");
+    printf("1]Add\n2]Update\n3]Display an item\n4]Exit\n");
 
     while (choice != 4)
     {
